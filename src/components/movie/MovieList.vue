@@ -34,7 +34,20 @@ export default {
       };
     },
     mounted() {
-
+        this.loadData();
+        window.onscroll = () => {
+            let clientHeight = document.documentElement.clientHeight;
+            let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            let scrollHight = document.documentElement.scrollHeight;
+            if (clientHeight + scrollTop == scrollHight){
+                this.loadingShow = true;
+                if (!this.tip){
+                    this.loadData();
+                } else {
+                    this.loadingShow = false;
+                }
+            }
+        };
       
     },
     methods:{
@@ -42,9 +55,18 @@ export default {
             let url =API_PROXY + "https://douban.uieee.com/v2/movie/in_theaters?count=20&start=" + this.moveList.length;
             Axios.get(url)
       .then(res => {
-          console.log(res);
+        //   console.log(res);
           this.loadingShowing=false;
-          this.moveList = res.data.subjects;
+          let list = res.data.subjects;
+          let data = list.slice(
+              this.moveList.length,
+              this.moveList.length + 10
+          )
+          if (data.length < 10){
+              this.tip = true;
+          } else {
+              this.moveList = res.data.subjects;
+          }
       })
       .catch(() => {
           alert("获取数据失败！")
