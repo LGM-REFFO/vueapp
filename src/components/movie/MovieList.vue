@@ -1,6 +1,6 @@
 <template>
 <div><ul class="movie-list" >
-        <li v-for="subject in moveList" :key="subject.id" class="movie"> 
+        <li @click="goDetail(subject.id)" v-for="subject in moveList" :key="subject.id" class="movie"> 
                  <div class="movie-img">
                      <img :src="subject.images.small.replace('https','https://images.weserv.nl/?url=https')">
                  </div>
@@ -16,6 +16,9 @@
     <div class="loading" v-show="loadingShow">
         <img src="../../assets/img/loading.gif" alt="">
     </div>
+    <div class="tip" v-show="tip">
+        <h4>数据已经到底了</h4>
+    </div>
 
 </div>
 </template>
@@ -26,17 +29,30 @@ export default {
     data(){
       return {
           moveList: [],
-          loadingShow: true
+          loadingShow: true,
+          tip:false
       };
     },
     mounted() {
-      Axios.get(API_PROXY + "https://douban.uieee.com/v2/movie/in_theaters?count=20&start=0")
+
+      
+    },
+    methods:{
+        loadData(){
+            let url =API_PROXY + "https://douban.uieee.com/v2/movie/in_theaters?count=20&start=" + this.moveList.length;
+            Axios.get(url)
       .then(res => {
           console.log(res);
           this.loadingShowing=false;
           this.moveList = res.data.subjects;
       })
-      .catch(() => {});
+      .catch(() => {
+          alert("获取数据失败！")
+      });
+        },
+        goDetail(moviId){
+             this.$router.push('/movie/MovieDetail/' + moviId);
+        }
     }
   
 };
